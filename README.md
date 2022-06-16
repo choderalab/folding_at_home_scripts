@@ -33,7 +33,7 @@ conda activate fah-leveldb
 ipython kernel install --user --name=fah-leveldb
 ```
 
-However, you must do a manual installation of the `plyvel` library due to differences in the Darwin OS.
+However, if you have MacOS 11 (Big Sur) or later, you must do a manual installation of the `plyvel` library due to differences in the Darwin OS.
 
 Next, download the [`plyvel`](https://github.com/wbolster/plyvel) library manually from the github page.
 
