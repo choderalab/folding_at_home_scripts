@@ -1,0 +1,63 @@
+<project type="OPENMM_22" id="18501">
+	<!-- this needs to be done with >=Openmm7.5-->
+  <contact v="alex.payne@choderalab.org"/>
+  <!-- ALWAYS update the 'id' above to your new project number! -->
+
+  <!-- This is a GPU project -->
+  <gpu/>
+
+  <!-- ALWAYS have this path reflect the complete path to your input files, will be $home in <send> section below -->
+	  <home v="/home/server/server2/projects/available/tmem175/projects/18501"/>
+
+  <!-- Job priority sorts from lowest to highest, then takes first entries-->
+  <!-- Prefixing with - sorts from highest to lowest -->
+  <!-- gen : which GENeration, highest is logner trajectory -->
+  <!-- queue-count is number of times WU has been re-queued due to failures -->
+  <!-- This example prioritizes long trajectories rather than uniform length -->
+  <job-priority v="clone -gen -queue-count -run"/>
+
+  <!-- Set this to the number of RUNs, CLONEs/RUN, and max GENs you want-->
+  <runs v="2"/>
+  <clones v="20"/>
+  <gens v="500"/>
+
+  <!-- This only shows up in project reports, not critical to be exact -->
+  <atoms v="151920"/>
+
+  <!-- Use direction from slack testers to set these; get timeout/deadline first -->
+  <!-- timeout is number of days before reassigning a WU -->
+  <!-- timeout has to be a small integer multiple of actual slowest acceptable completion time -->
+  <!-- deadline is latest number of days from assignment volunteer will get points for returning WU -->
+  <!-- ANY CHANGE TO THESE WILL REQUIRE stats-credit to be re-benchmarked -->
+  <timeout v="3.0"/>  
+  <deadline v="5.0"/>
+
+  <!-- base credit, set by coordination with slack testers -->
+  <stats-credit v="77795"/>
+
+  <!-- set of files to send each WU -->
+  <!-- $run substitutes RUN number only -->
+  <!-- $home substitutes the <home> above -->
+  <send>
+    $home/core.xml
+    $home/RUNS/RUN$run/system.xml.bz2
+    $home/RUNS/RUN$run/integrator.xml.bz2
+    state.xml.bz2
+  </send>
+  <create-command>
+    ln -s -f $home/RUNS/RUN$run/state.xml.bz2 $jobdir/state.xml.bz2
+  </create-command>
+  <next-gen-command>
+    rm -f $results/checkpointIntegrator.xml.bz2
+    mv -f $results/checkpointState.xml.bz2 $jobdir/state.xml.bz2
+  </next-gen-command>
+</project>
+<!--
+Reading log file 'log.txt'...
+Found GPU 'GeForce GTX 1080 Ti' in folding slot 00
+GeForce GTX 1080 Ti : completed 8%
+dict_keys(['GeForce GTX 1080 Ti'])
+
+BENCHMARK RESULTS
+GeForce GTX 1080 Ti  | 0.20298032 days/WU | timeout 3.000000 deadline 5.000000 credit 63280.525474
+-->

@@ -1,2 +1,4 @@
 *.ipynb*
 *work.level.db/*
+*leveldb
+.*
