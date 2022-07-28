@@ -2,7 +2,7 @@
 *work.level.db/*
 *leveldb
 .*
-figures/*
+figures/*.png
 *.png
 
 # MacOS Folder view configuration files
