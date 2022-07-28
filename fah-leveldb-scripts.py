@@ -5,7 +5,7 @@ import re
 import ast
 import numpy as np
 import matplotlib.pyplot as plt
-import yaml
+import yaml, datetime
 from argparse import ArgumentParser
 import plotly.express as px
 import plotly.express.colors as c
@@ -15,13 +15,20 @@ def get_args():
     parser.add_argument("-d", "--date_file", type=str, default="dates.yaml")
     parser.add_argument("-p", "--projects_file", type=str, default="projects.yaml")
     parser.add_argument("-c", "--copy_db", type=bool, default=False)
+    parser.add_argument("-a", "--analyze", type=bool, default=False)
+    parser.add_argument("-s", "--server_name", type=str, default="pllwskifah1.mskcc.org")
+    parser.add_argument("-i", "--server_id", type=str, default="SVR2359493832")
     args = parser.parse_args()
     return args
 
+def copy_leveldb(server_name, server_id):
+    date = datetime.date.today().strftime('%Y%m%d')
+    server_path = f"server@{server_name}:~/server2/data/{server_id}/work.leveldb"
+    local_leveldb_path = f"{server_id}_{date}_work.leveldb"
+    print(f"Copying {server_path} to {local_leveldb_path}...")
+    subprocess.Popen(f"rsync -ravh {server_path} {local_leveldb_path}", shell=True).wait()
 
-def copy_leveldb():
-    subprocess.Popen("rsync -ravh server@pllwskifah1.mskcc.org:~/server2/data/SVR2359493832/work.leveldb SVR2359493832_20220718_work.leveldb",
-                     shell=True).wait()
+
 def load_dates(date_file):
     with open(date_file) as f:
         date_list = yaml.safe_load(f)
@@ -129,7 +136,7 @@ class Project():
         plt.ylabel("Number of CLONEs")
         plt.xlim([0, 5000])
         plt.title(f"p{self.project_number}: " + str(traj_lengths_ns.sum() / 1000) + " $\mu$s")
-        plt.savefig(f"p{self.project_number}-traj-distribution.png", dpi=300)
+        plt.savefig(f"{self.date}_p{self.project_number}-traj-distribution.png", dpi=300)
         return traj_lengths_ns
 
     def plot_histogram_by_run(self):
@@ -147,7 +154,7 @@ class Project():
                                                     get_rbg_str_from_pymol_colors(wheat)],
                            labels={"run": "<b>Run</b>"}
                            )
-        fig.update_xaxes(range=[0, 2500])
+        fig.update_xaxes(range=[0, 5000])
         fig.update_yaxes(range=[0, 40])
         fig.update_layout(height=900,
                           width=1200,
@@ -202,17 +209,20 @@ if __name__ == "__main__":
     args = get_args()
     date_list = load_dates(args.date_file)
     print(date_list)
+
     if args.copy_db:
-        copy_leveldb()
+        # leveldb_path = f"SVR2359493832_{date}_work.leveldb/work.leveldb"
+        copy_leveldb(args.server_name, args.server_id)
 
     for date in date_list:
-        leveldb_path = f"SVR2359493832_{date}_work.leveldb/work.leveldb"
+        leveldb_path = f"{args.server_id}_{date}_work.leveldb/work.leveldb"
         #subprocess.Popen(f"rm {leveldb_path}/LOCK", shell=True).wait()
-        project_list = ProjectList(args.projects_file, leveldb_path, date)
-        project_list.report()
-        project_list.load_leveldb()
-        project_list.get_project_dfs()
-        project_list.make_complete_report()
+        if args.analyze:
+            project_list = ProjectList(args.projects_file, leveldb_path, date)
+            project_list.report()
+            project_list.load_leveldb()
+            project_list.get_project_dfs()
+            project_list.make_complete_report()
 
         #make_fah_progress_images(date, project_list)
 
