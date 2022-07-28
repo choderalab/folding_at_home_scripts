@@ -2,6 +2,8 @@
 *work.level.db/*
 *leveldb
 .*
+figures/*
+*.png
 
 # MacOS Folder view configuration files
 .DS_Store
