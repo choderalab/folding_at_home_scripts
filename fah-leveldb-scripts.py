@@ -202,7 +202,7 @@ class Project():
         #     x=0.99
         # ))
 
-        fig.show()
+        # fig.show()
         fig.write_image(f"{self.date}_p{self.project_number}_distribution_by_state.png")
 
 if __name__ == "__main__":
