@@ -1,7 +1,6 @@
 '''
 This script is based off of the original tutorial at
-msmbuilder.org/3.8.0/tutorial.html
-and developed by mpharrigan
+msmbuilder.org/3.8.0/tutorial.html developed by mpharrigan
 '''
 
 # Add necessary packages
