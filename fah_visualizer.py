@@ -13,14 +13,14 @@ from msmbuilder.io import gather_metadata, save_meta, NumberedRunsParser, load_m
     preload_top, preload_tops, save_trajs, save_generic, backup, load_trajs
 from multiprocessing import Pool
 
-# STEP 0.5 META pickle file of trajectories
-atom_index_start, atom_index_end, number_between =\
-    [int(x) for x in input("What is the start, end, and jump between atom index numbers: ").split()]
+# STEP 0.5 required inputs for script
 traj_name = input("Name of the trajectory files: ")  # Note need to be in 'trajectory-{run}.xtc' format for function
 top_name = input("Name of the topology file for the system: ")  # Just need to give the name of file ex. 'top.pdb'
 frame_step = int(input("What is the trajectory frame step in picoseconds: "))  # Need to be in ps for it to work
 frame_num_desired = int(input("How many frames would you like in the output trajectory: "))
 output_trajectory = input("What would you like to name your output trajectory: ")
+tica_comp_num = 5
+tica_lag_time = 100
 parser = NumberedRunsParser(traj_name, top_name, frame_step)
 
 meta = gather_metadata(os.getcwd() + "/*.xtc", parser)
@@ -45,7 +45,7 @@ save_trajs(dihed_trajs, 'ftrajs', metadata)
 save_generic(dihed_feat, 'featurizer.pickl')
 
 # Step 2 Run tICA on feature space and compute tICA components
-tica = tICA(n_components=5, lag_time=100, kinetic_mapping=True)
+tica = tICA(tica_comp_num, tica_lag_time, kinetic_mapping=True)
 meta_info, ftrajs = load_trajs("ftrajs")
 
 tica.fit(ftrajs.values())
@@ -79,3 +79,11 @@ traj.superpose(ref_file)
 traj_fn = output_trajectory
 backup(traj_fn)
 traj.save(traj_fn)
+
+# Step 6, remove unneeded files generated during process
+os.system('rm meta.pandas.pickl')
+os.system('rm -r ftrajs')
+os.system('rm featurizer.pickl')
+os.system('rm -r ttrajs')
+os.system('rm tica.pickl')
+os.system('rm tica-dimension-0-inds.pickl')
