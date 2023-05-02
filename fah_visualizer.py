@@ -5,6 +5,7 @@ msmbuilder.org/3.8.0/tutorial.html developed by mpharrigan
 
 # Add necessary packages
 import os
+import glob
 import mdtraj as md
 from msmbuilder.featurizer import DihedralFeaturizer
 from msmbuilder.decomposition import tICA
@@ -14,11 +15,14 @@ from msmbuilder.io import gather_metadata, save_meta, NumberedRunsParser, load_m
 from multiprocessing import Pool
 
 # STEP 0.5 required inputs for script
-traj_name = input("Name of the trajectory files: ")  # Note need to be in 'trajectory-{run}.xtc' format for function
+traj_name = glob.glob("*.xtc")
 top_name = input("Name of the topology file for the system: ")  # Just need to give the name of file ex. 'top.pdb'
 frame_step = int(input("What is the trajectory frame step in picoseconds: "))  # Need to be in ps for it to work
-frame_num_desired = int(input("How many frames would you like in the output trajectory: "))
+frame_num_desired = int(input("How many frames would you like in the output trajectory (default = 100): "))
+if type(frame_num_desired) != int:
+    frame_num_desired = 100
 output_trajectory = input("What would you like to name your output trajectory: ")
+output_trajectory += ".xtc"
 tica_comp_num = 5
 tica_lag_time = 100
 parser = NumberedRunsParser(traj_name, top_name, frame_step)
@@ -73,12 +77,12 @@ traj = md.join(
     for traj_i, frame_i in inds
 )
 
-# Step 5, extract states as a signle trajectory and align them
+# Step 5, extract states as a single trajectory and align them
 ref_file = md.load(top_name)
 traj.superpose(ref_file)
 traj_fn = output_trajectory
 backup(traj_fn)
-traj.save(traj_fn)
+traj.save(traj_fn)  # Trajectory file saves as an xtc in accordance with name
 
 # Step 6, remove unneeded files generated during process
 os.system('rm meta.pandas.pickl')
