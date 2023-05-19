@@ -1,4 +1,4 @@
-name: fah-leveldb
+name: fah-tracker
 channels:
   - conda-forge
   - defaults
@@ -10,8 +10,10 @@ dependencies:
   - matplotlib
   - cython
   - pip
+  - requests
+  - os
+  - json
   - python=3.8.5
   - tqdm
   - pip:
-    - plyvel
     - nb_black
